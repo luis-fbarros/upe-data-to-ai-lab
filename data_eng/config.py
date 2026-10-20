@@ -6,6 +6,7 @@ ROOT_DIR = PACKAGE_DIR.parent
 DATA_DIR = ROOT_DIR / "data"
 RAW_DIR = DATA_DIR / "raw"
 ERRORS_DIR = DATA_DIR / "errors"
+DOCS_DIR = DATA_DIR / "docs"
 EXTRACTORS_DIR = PACKAGE_DIR / "extractors"
 SCHEMA_FILE = PACKAGE_DIR / "db" / "schema.sql"
 

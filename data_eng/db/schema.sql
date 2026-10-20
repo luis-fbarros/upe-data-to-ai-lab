@@ -1,4 +1,4 @@
--- gpa = SIGA's "CR" (coeficiente de rendimento), a 0-10 weighted grade average.
+CREATE EXTENSION IF NOT EXISTS vector;
 
 CREATE TABLE IF NOT EXISTS student (
     student_id        TEXT PRIMARY KEY,
@@ -81,4 +81,11 @@ CREATE TABLE IF NOT EXISTS curriculum (
     credits         INTEGER,
     prerequisites   TEXT,
     syllabus        TEXT
+);
+
+CREATE TABLE IF NOT EXISTS documents (
+    student_id  TEXT,
+    source      TEXT,
+    content     TEXT,
+    embedding   vector(768)
 );

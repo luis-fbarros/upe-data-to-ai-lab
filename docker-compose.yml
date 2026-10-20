@@ -1,7 +1,6 @@
-# PostgreSQL database. Start it with: docker compose up -d
 services:
   db:
-    image: postgres:16
+    image: pgvector/pgvector:pg16
     container_name: siga-db
     environment:
       POSTGRES_USER: siga

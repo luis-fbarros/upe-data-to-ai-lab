@@ -10,7 +10,6 @@ from data_eng.transform import compute_cr
 PASSED_STATUSES = ("APROVADO", "DISPENSADO", "APROVEITADO")
 IN_PROGRESS_STATUS = "CURSANDO"
 
-# Grading rule
 PASSING_AVERAGE = 7.0
 FINAL_EXAM_MIN_AVERAGE = 3.0
 FINAL_PASSING_AVERAGE = 5.0
@@ -51,8 +50,8 @@ def passed_and_in_progress(student_id):
     return passed_codes, in_progress_codes
 
 
-def progress(student_id):
-    """Student profile, CR and progress in the program: hours required, completed and remaining per category."""
+def progress(student_id: str) -> dict:
+    """Perfil do aluno, CR e progresso no curso: carga horária exigida, concluída e restante por categoria."""
     student = query("SELECT * FROM student WHERE student_id = %s", (student_id,))
     categories = query("SELECT category, required_hours, completed_hours, remaining_hours, completed_percentage "
                        "FROM workload WHERE student_id = %s", (student_id,))
@@ -65,15 +64,15 @@ def progress(student_id):
     return result
 
 
-def transcript(student_id, term=None):
-    """Courses taken, with final grade and status. Optional `term`, e.g. '2025.1'."""
+def transcript(student_id: str, term: str | None = None) -> list[dict]:
+    """Disciplinas cursadas, com nota final e situação. `term` opcional, ex: '2025.1'."""
     if term:
         return query("SELECT * FROM transcript WHERE student_id = %s AND term = %s", (student_id, term))
     return query("SELECT * FROM transcript WHERE student_id = %s ORDER BY term", (student_id,))
 
 
-def schedule(student_id, weekday=None):
-    """Weekly classes. Optional `weekday`, in Portuguese: SEG, TER, QUA, QUI, SEX or SAB."""
+def schedule(student_id: str, weekday: str | None = None) -> list[dict]:
+    """Aulas da semana. `weekday` opcional: SEG, TER, QUA, QUI, SEX ou SAB."""
     if weekday:
         return query("SELECT * FROM schedule WHERE student_id = %s AND weekday = %s ORDER BY start_time",
                      (student_id, weekday.upper()))
@@ -82,18 +81,19 @@ def schedule(student_id, weekday=None):
                  (student_id,))
 
 
-def pending_courses(student_id):
-    """Mandatory courses still to be taken, with the suggested term."""
+def pending_courses(student_id: str) -> list[dict]:
+    """Disciplinas obrigatórias que ainda faltam, com o período sugerido."""
     return query("SELECT * FROM pending_courses WHERE student_id = %s ORDER BY suggested_term", (student_id,))
 
 
-def search_curriculum(student_id, text):
-    """Finds program courses by name or code; shows type, term, prerequisites and syllabus."""
+def search_curriculum(student_id: str, text: str) -> list[dict]:
+    """Busca disciplinas do curso por nome ou código, com tipo, período, pré-requisitos e ementa."""
     return query("SELECT * FROM curriculum WHERE student_id = %s AND (course_name ILIKE %s OR course_code ILIKE %s)",
                  (student_id, f"%{text}%", f"%{text}%"))
 
 
-def cr_by_term(student_id):
+def cr_by_term(student_id: str) -> list[dict]:
+    """CR (coeficiente de rendimento) de cada período já cursado."""
     rows = transcript(student_id)
     history = []
     for term in sorted({row["term"] for row in rows}):
@@ -103,7 +103,8 @@ def cr_by_term(student_id):
     return history
 
 
-def simulate_cr(student_id, expected_grades):
+def simulate_cr(student_id: str, expected_grades: dict[str, float]) -> dict:
+    """Simula o CR se as disciplinas em curso fecharem com as notas esperadas. Ex: {'BCC00003': 8.0}."""
     rows = transcript(student_id)
     used = []
     for row in rows:
@@ -123,7 +124,7 @@ def simulate_cr(student_id, expected_grades):
 
 def grade_situation(va1, va2, va3):
     grades = [grade for grade in (va1, va2) if grade is not None]
-    if va3 is not None and grades:  # VA3 replaces the lowest grade
+    if va3 is not None and grades:
         grades.remove(min(grades))
         grades.append(va3)
 
@@ -142,7 +143,8 @@ def grade_situation(va1, va2, va3):
     return {"situation": "failing", "average": average}
 
 
-def term_status(student_id):
+def term_status(student_id: str) -> list[dict]:
+    """Situação de cada disciplina em curso: notas VA1/VA2/VA3, nota necessária, faltas restantes."""
     current = query("SELECT * FROM transcript WHERE student_id = %s AND status = %s", (student_id, IN_PROGRESS_STATUS))
     released = query("SELECT * FROM grades WHERE student_id = %s", (student_id,))
 
@@ -165,7 +167,8 @@ def term_status(student_id):
     return report
 
 
-def failure_impact(student_id, course):
+def failure_impact(student_id: str, course: str) -> dict:
+    """Disciplinas que ficam bloqueadas se o aluno reprovar na disciplina informada (código ou nome)."""
     curriculum = curriculum_by_code(student_id)
     wanted = course.upper()
     target = next((c for code, c in curriculum.items() if wanted == code or wanted in c["course_name"]), None)
@@ -195,7 +198,8 @@ def failure_impact(student_id, course):
             "chain_length": max(depth.values())}
 
 
-def next_enrollment(student_id):
+def next_enrollment(student_id: str) -> dict:
+    """Disciplinas que o aluno pode cursar agora, ou se passar nas atuais, respeitando pré-requisitos."""
     curriculum = curriculum_by_code(student_id)
     passed_codes, in_progress_codes = passed_and_in_progress(student_id)
 
@@ -220,7 +224,8 @@ def next_enrollment(student_id):
             "available_if_current_courses_pass": sorted(after_current_term, key=order)}
 
 
-def graduation_forecast(student_id):
+def graduation_forecast(student_id: str) -> dict:
+    """Estimativa de períodos restantes para a formatura, pela carga horária média por período."""
     total = query("SELECT remaining_hours FROM workload WHERE student_id = %s AND category = 'Total'", (student_id,))
     graded = [row for row in transcript(student_id) if row["final_grade"] is not None]
     terms = {row["term"] for row in graded}
