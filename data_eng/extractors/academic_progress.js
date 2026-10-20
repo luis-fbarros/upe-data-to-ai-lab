@@ -1,4 +1,3 @@
-// Parses SIGA's "Aproveitamento Acadêmico" page (ported from the my_ufape app).
 () => {
   const parseNumber = (text) => {
     if (!text || text.trim() === '-') return null;
@@ -12,7 +11,6 @@
   };
   const clean = (s) => s.replace(/-/g, '').replace(/ /g, ' ').trim();
 
-  // 1. Workload summary (rows tr[id^="a1."])
   const workload_summary = [];
   const btn = document.querySelector('input#bt_a1');
   const workloadTable = btn?.nextElementSibling?.nextElementSibling;
@@ -48,7 +46,6 @@
     }
   }
 
-  // 2. Completed components summary
   const component_summary = [];
   const componentTable = document.querySelector('table[id="a2.2.1"]');
   if (componentTable) {
@@ -71,7 +68,6 @@
     }
   }
 
-  // 3. Pending components
   const pending = { subjects: [], total_pending_hours: 0 };
   const pendingTable = document.querySelector('table[id="a3.1"]');
   if (pendingTable) {

@@ -1,8 +1,3 @@
-"""
-SIGA -> transform -> PostgreSQL -> validation.
-
-    uv run python -m data_eng.pipeline [ufape|upe] [--skip-extract]
-"""
 
 import argparse
 import getpass

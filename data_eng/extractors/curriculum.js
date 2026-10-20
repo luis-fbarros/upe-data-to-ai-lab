@@ -1,16 +1,13 @@
-// Parses SIGA's "Perfil Curricular" page (ported from the my_ufape app).
 () => {
   const textOf = (el) => (el ? el.textContent.trim() : '');
   const toInt = (s) => parseInt(s, 10) || 0;
 
-  // "MAT101 - CÁLCULO I" -> { code: "MAT101", name: "CÁLCULO I" }
   const splitCode = (s) => {
     const i = s.indexOf(' - ');
     if (i < 0) return null;
     return { code: s.slice(0, i).trim(), name: s.slice(i + 3).trim() };
   };
 
-  // List of prerequisites / corequisites / equivalences of a course (labels are in Portuguese on SIGA)
   const readDetail = (cell, label, idSuffix) => {
     const rows = Array.from(cell.querySelectorAll('table > tbody > tr'));
     const labelRow = rows.find((tr) => textOf(tr.querySelector('span.edit')) === label);

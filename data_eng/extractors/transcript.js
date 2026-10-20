@@ -1,4 +1,3 @@
-// Parses SIGA's "Histórico Escolar" page (ported from the my_ufape app).
 () => {
   const parseValue = (text) => {
     if (!text) return null;
@@ -28,7 +27,6 @@
 
     const rows = Array.from(content.querySelectorAll('tr'));
     if (rows.length === 1 && rows[0].cells.length === 1) {
-      // Term with a special status (e.g. "Trancamento" = enrollment suspended)
       obj.special_status = rows[0].innerText.trim();
     } else {
       for (const row of rows) {

@@ -41,7 +41,6 @@ STUDENT_INFO_LINKS = [
 
 
 class SigaClient:
-    """Browser session on SIGA. Keeps the credentials to log in again if the session drops."""
 
     def __init__(self, page: Page, institution: str, login: str, password: str):
         self.page = page
@@ -54,7 +53,6 @@ class SigaClient:
 
     @staticmethod
     def click(locator: Locator) -> None:
-        """JavaScript click: also works on hidden elements, like SIGA's menu."""
         locator.first.evaluate("element => element.click()", timeout=15_000)
 
     def wait_until_ready(self, section: str) -> None:
@@ -106,7 +104,6 @@ class SigaClient:
                     return
                 if INVALID_LOGIN_TEXT in self.page.inner_text("body"):
                     raise SystemExit("Invalid CPF/student ID or password.")
-                # Captcha: keep the fields filled; SIGA submits by itself once it is solved.
                 password_field = self.page.query_selector("#txtPassword")
                 if password_field and password_field.input_value() == "":
                     self.page.fill("#cpf", self.login)
@@ -135,11 +132,9 @@ class SigaClient:
         self.click(self.frame().locator('[id$=":outputLinkTransacao"]', has_text=text))
 
     def open_student_info_link(self, text: str, attempt: int) -> None:
-        """The links stay on screen (SIGA swaps content via AJAX); on a retry, reopen the page first."""
         if attempt == 2 or self.frame() is None:
             self.open_menu_button(STUDENT_INFO_BUTTON)
             self.wait_until_ready("student")
-        # Exact match: another link is called "Perfil Curricular X Histórico Escolar".
         exact_text = re.compile(rf"^\s*{text}\s*$")
         self.click(self.frame().locator("ul.sanfona a, a.default").filter(has_text=exact_text))
 
@@ -185,7 +180,7 @@ def extract_from_siga(institution: str, login: str, password: str) -> dict[str, 
 def save_raw(raw: dict[str, dict | None]) -> None:
     RAW_DIR.mkdir(parents=True, exist_ok=True)
     for old_file in RAW_DIR.glob("*.json"):
-        old_file.unlink()  # never mix data from different students
+        old_file.unlink()
     for section, content in raw.items():
         if content is not None:
             (RAW_DIR / f"{section}.json").write_text(json.dumps(content, ensure_ascii=False, indent=2), encoding="utf-8")

@@ -4,8 +4,6 @@ import psycopg
 
 log = logging.getLogger(__name__)
 
-# (level, description, query)
-# Se level for "error", validate falha e bloqueia a requisição
 
 RULES = [
     ("error", "final grade outside 0-10",

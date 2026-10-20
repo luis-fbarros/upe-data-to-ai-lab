@@ -1,4 +1,3 @@
-// Parses SIGA's "Informações do Discente (header)" page (ported from the my_ufape app).
 () => {
   const fieldMapping = {
     'CPF:': 'cpf',

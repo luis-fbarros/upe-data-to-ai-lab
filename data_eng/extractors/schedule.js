@@ -1,9 +1,8 @@
-// Parses SIGA's "Grade de Horário" page (ported from the my_ufape app).
 () => {
   const subjects = new Map();
   for (const row of document.querySelectorAll('table[width="600"] tr')) {
     const cells = row.querySelectorAll('td font.editPesquisa');
-    if (cells.length < 6) continue; // notice rows ("não há vagas") etc.
+    if (cells.length < 6) continue;
     const code = cells[0].innerText.trim();
     if (!code || code === 'CÓDIGO') continue;
     subjects.set(code, {

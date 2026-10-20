@@ -1,4 +1,3 @@
-// Parses SIGA's "Notas" page (ported from the my_ufape app).
 () => {
   const main = document.getElementById('form-corpo');
   if (!main) return { error: "Container 'form-corpo' not found." };
@@ -49,7 +48,6 @@
 
         subjects.push({ name, term, status, grades, teacher });
       } catch (e) {
-        // course with an unexpected layout: skip it
       }
     }
   }

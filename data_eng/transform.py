@@ -2,7 +2,6 @@ import re
 
 
 def clean_text(value):
-    """Removes extra spaces and CPFs (11 digits in a row), which SIGA puts in some names."""
     if value is None:
         return None
     without_cpf = re.sub(r"\b\d{11}\b", "", str(value))
@@ -20,7 +19,6 @@ def to_number(value):
 
 
 def split_course_code(name):
-    """'BCC00003 - EMPREENDEDORISMO I - CC5' -> ('BCC00003', 'EMPREENDEDORISMO I', 'CC5')."""
     parts = [part.strip() for part in name.split(" - ")]
     code = parts[0]
     if len(parts) >= 3:
@@ -31,13 +29,11 @@ def split_course_code(name):
 
 
 def truncate(value, decimals=2):
-    """8.6785 -> 8.67."""
     factor = 10 ** decimals
     return int(value * factor) / factor
 
 
 def compute_cr(transcript, term=None):
-    """Calcula o Coeficiente de Rendimento, aceitando um período específico opcionalmente."""
     weighted_sum = 0
     total_hours = 0
     for row in transcript:
@@ -56,7 +52,6 @@ def transform_transcript(raw):
     rows = []
     for term in raw["periods"]:
         for course in term["subjects"]:
-            # Sem código = não é uma disciplina, é um cabeçalho de bloco curricular
             if course["code"] is None:
                 continue
             rows.append({
@@ -85,14 +80,13 @@ def transform_student(raw_student, raw_transcript, raw_progress, transcript):
     if raw_transcript:
         student["siga_gpa"] = to_number(raw_transcript["overall_coefficient"])
         student["siga_average"] = to_number(raw_transcript["overall_average"])
-        student["computed_cr"] = compute_cr(transcript)
+        student["computed_gpa"] = compute_cr(transcript)
     if raw_progress:
         student["pending_hours"] = raw_progress["pending_components"]["total_pending_hours"]
     return [student]
 
 
 def transform_grades(raw):
-    """Uma linha por avaliação, com o nome da disciplina, professor e faltas repetidos."""
     rows = []
     for course in raw["subjects"]:
         code, name, class_group = split_course_code(clean_text(course["name"]))
