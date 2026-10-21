@@ -20,6 +20,7 @@ SIGA (login e senha) → data/raw/*.json → transform → PostgreSQL + pgvector
 ```bash
 docker compose up -d
 uv sync
+uv run playwright install chromium
 uv run python -m data_eng.pipeline ufape
 ```
 
@@ -32,7 +33,7 @@ uv run python -m workshop.snapshot
 ```
 
 2. Ler `data/snapshot.md` e escrever funções de normalização em `data_eng/transform.py`.
-3. Criar tools novas em `workshop/my_tools.py` (CR, nota necessária, aprovação, planejamento de horários...). Tudo que estiver em `TOOLS` vai para o agente.
+3. Completar os exercícios em `workshop/exercises.py`: `normalize_weekday`, `passed_course`, `best_term` e `gaps` (horários livres). Cada `raise NotImplementedError` é uma lacuna. O agente carrega `workshop/my_tools.py`, que usa essas funções. O gabarito está na branch `workshop-completo`.
 4. Vetorizar ementas e arquivos de `data/docs/`:
 
 ```bash

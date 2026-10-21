@@ -47,3 +47,4 @@ def test_mask_hides_cpf():
 def test_describe_columns_counts_nulls():
     lines = describe_columns([{"grade": "7,5"}, {"grade": None}])
     assert "| grade | str | 1 | 1 |" in lines[-1]
+
